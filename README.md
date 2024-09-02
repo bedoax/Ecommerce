@@ -35,6 +35,16 @@ Welcome to the Ecommerce Project! This web application allows users to browse, p
 - **Payment Processing**: Stripe
 - **Password Encryption**: Custom encryption methods for securing passwords
 
+## NuGet Packages
+
+- **Microsoft.AspNetCore.Mvc**: For building web applications with ASP.NET Core MVC.
+- **Microsoft.EntityFrameworkCore.SqlServer**: For SQL Server database operations with Entity Framework Core.
+- **Microsoft.EntityFrameworkCore.Tools**: For Entity Framework Core tools used in the development process.
+- **Stripe.net**: For integrating Stripe payment processing.
+- **Microsoft.Json**: For JSON serialization and deserialization.
+- **Microsoft.AspNetCore.Authentication.Cookies**: For handling cookie-based authentication.
+- **microsoft.entityframeworkcore.design
+
 ## Installation
 
 1. **Clone the Repository**
@@ -83,6 +93,11 @@ This project includes custom encryption for securely storing user passwords. The
 
 Feel free to fork the repository, create a branch, and submit a pull request. Please ensure that your contributions align with the project's coding standards and include appropriate tests.
 
+
 ## Contact
 
-For any questions or support, please contact [abdelrahmanneehad@gmail.com](mailto:abdelrahmanneehad@gmail.com).
+For any questions or support, please contact [Abdelrahman Said](mailto:abdelrahmanneehad@gmail.com).
+
+## GitHub
+
+You can find the project repository at [https://github.com/bedoax/ecommerce-project](https://github.com/bedoax/ecommerce-project).
