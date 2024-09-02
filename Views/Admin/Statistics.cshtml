@@ -1,0 +1,96 @@
+﻿@{
+    var mostThreeItemsInCart = ViewBag.MostThreeItemsInCart as IEnumerable<dynamic>;
+    var mostThreeItemsInOrder = ViewBag.MostThreeItemsInOrder as IEnumerable<dynamic>;
+    var mostThreeItemsViewed = ViewBag.MostThreeItemsViewed as IEnumerable<dynamic>;
+}
+
+<div class="container my-4">
+    <h1 class="text-center mb-4">Statistics</h1>
+
+    <div class="row mb-4">
+        <div class="col-md-2">
+            <div class="list-group">
+                <a href="@Url.Action("Index", "Admin")" class="list-group-item list-group-item-action ">
+                    Users <i class="fa-solid fa-user"></i>
+                </a>
+                <a href="@Url.Action("Statistics", "Admin")" class="list-group-item list-group-item-action active">
+                    Statistics <i class="fa-solid fa-chart-line"></i>
+                </a>
+                <a href="@Url.Action("Orders", "Admin")" class="list-group-item list-group-item-action">
+                    Orders <i class="fa-solid fa-truck"></i>
+                </a>
+                <a href="@Url.Action("Index", "Item")" class="list-group-item list-group-item-action">
+                    Items <i class="fa-solid fa-box"></i>
+                </a>
+                <a href="@Url.Action("Index", "Product")" class="list-group-item list-group-item-action">
+                    Products <i class="fa-solid fa-cube"></i>
+                </a>
+                <a href="@Url.Action("Index", "Department")" class="list-group-item list-group-item-action">
+                    Departments <i class="fa-solid fa-tags"></i>
+                </a>
+                <a href="@Url.Action("Logout", "User")" class="list-group-item list-group-item-action text-danger">
+                    Logout <i class="fa-solid fa-right-from-bracket"></i>
+                </a>
+            </div>
+        </div>
+
+        <div class="col-md-10">
+            <h3>Top 3 Items in Cart</h3>
+            <table class="table table-bordered table-striped">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Item Name</th>
+                        <th>Cart Count</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in mostThreeItemsInCart)
+                    {
+                        <tr>
+                            <td>@item.ItemName</td>
+                            <td>@item.CartCount</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            <h3>Top 3 Items in Orders</h3>
+            <table class="table table-bordered table-striped">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Item Name</th>
+                        <th>Order Count</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in mostThreeItemsInOrder)
+                    {
+                        <tr>
+                            <td>@item.ItemName</td>
+                            <td>@item.OrderCount</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            <h3>Top 3 Most Viewed Items</h3>
+            <table class="table table-bordered table-striped">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Item Name</th>
+                        <th>Viewing Count</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in mostThreeItemsViewed)
+                    {
+                        <tr>
+                            <td>@item.ItemName</td>
+                            <td>@item.BrowsingCount</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

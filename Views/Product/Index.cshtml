@@ -1,0 +1,122 @@
+﻿@model IEnumerable<Ecommerce.Models.Product>
+
+<div class="container my-4">
+    <h1 class="text-center mb-4">Products List</h1>
+
+    <div class="row mb-4">
+        <div class="col-md-2">
+            <div class="list-group">
+                <a href="@Url.Action("Index", "Admin")" class="list-group-item list-group-item-action">
+                    Users <i class="fa-solid fa-user"></i>
+                </a>
+                <a href="@Url.Action("Statistics", "Admin")" class="list-group-item list-group-item-action">
+                    Statistics <i class="fa-solid fa-chart-line"></i>
+                </a>
+                <a href="@Url.Action("Orders", "Admin")" class="list-group-item list-group-item-action">
+                    Orders <i class="fa-solid fa-truck"></i>
+                </a>
+                <a href="@Url.Action("Index", "Item")" class="list-group-item list-group-item-action">
+                    Items <i class="fa-solid fa-box"></i>
+                </a>
+                <a href="@Url.Action("Index", "Product")" class="list-group-item list-group-item-action active">
+                    Products <i class="fa-solid fa-cube"></i>
+                </a>
+                <a href="@Url.Action("Index", "Department")" class="list-group-item list-group-item-action">
+                    Departments <i class="fa-solid fa-tags"></i>
+                </a>
+                <a href="@Url.Action("Logout", "User")" class="list-group-item list-group-item-action text-danger">
+                    Logout <i class="fa-solid fa-right-from-bracket"></i>
+                </a>
+            </div>
+        </div>
+
+        <div class="col-md-10">
+            <div class="mb-3">
+                <a href="@Url.Action("Create", "Product")" class="btn btn-primary">
+                    <i class="fa-solid fa-plus"></i> Add New Product
+                </a>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped">
+                    <thead class="table-dark text-center">
+                        <tr>
+                            <th scope="col">Product ID</th>
+                            <th scope="col">Name</th>
+                            <th scope="col">Department ID</th>
+                            <th scope="col">Edit</th>
+                            <th scope="col">Delete</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-center">
+                        @foreach (var product in Model)
+                        {
+                            <tr id="product-row-@product.Id">
+                                <td>@product.Id</td>
+                                <td>@product.Name</td>
+                                <td>@product.DepartmentId</td>
+                                <td>
+                                    <a href="@Url.Action("Edit", new { id = product.Id })" class="btn btn-primary btn-sm">
+                                        <i class="fa-solid fa-pencil-alt"></i> Edit
+                                    </a>
+                                </td>
+                                <td>
+                                    <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal-@product.Id" data-item-id="@product.Id">
+                                        <i class="fa-solid fa-trash"></i> Delete
+                                    </button>
+                                </td>
+                            </tr>
+
+                            <!-- Delete Confirmation Modal -->
+                            <div class="modal fade" id="deleteModal-@product.Id" tabindex="-1" aria-labelledby="deleteModalLabel-@product.Id" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="deleteModalLabel-@product.Id">Confirm Delete</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            Are you sure you want to delete product <strong>@product.Name</strong>?
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                            <button type="button" class="btn btn-danger" onclick="deleteProduct(this)" data-item-id="@product.Id">Delete</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        function deleteProduct(button) {
+            var productId = $(button).data('item-id');
+
+            $.ajax({
+                url: '@Url.Action("Delete", "Product")',
+                type: 'POST',
+                data: { id: productId },
+                success: function (response) {
+                    if (response.success) {
+                        // Remove the product row from the table
+                        $('#product-row-' + productId).remove();
+                        // Close the modal
+                        $('#deleteModal-' + productId).modal('hide');
+                    } else {
+                        alert(response.message);
+                    }
+                },
+                error: function () {
+                    alert('An error occurred while trying to delete the product.');
+                }
+            });
+        }
+    </script>
+}

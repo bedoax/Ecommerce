@@ -1,0 +1,59 @@
+﻿@model Ecommerce.Models.Register
+
+@{
+    ViewData["Title"] = "Registration";
+}
+
+<div class="container d-flex justify-content-center align-items-center min-vh-100">
+    <div class="w-100" style="max-width: 500px;">
+        <h1 class="text-center mb-4">Registration</h1>
+        <hr />
+
+        <form asp-action="Register">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            @if (ViewBag.Message != null)
+            {
+                <div class="alert alert-success mb-3">@ViewBag.Message</div>
+            }
+
+            <div class="form-group">
+                <label asp-for="UserName" class="control-label"></label>
+                <input asp-for="UserName" class="form-control" placeholder="Username" />
+                <span asp-validation-for="UserName" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Email" class="control-label"></label>
+                <input asp-for="Email" class="form-control" placeholder="Email" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Password" class="control-label"></label>
+                <input asp-for="Password" type="password" class="form-control" placeholder="Password" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="ConfirmPassword" class="control-label"></label>
+                <input asp-for="ConfirmPassword" type="password" class="form-control" placeholder="Confirm Password" />
+                <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mt-3">
+                <input type="submit" value="Register" class="btn btn-primary w-100" />
+            </div>
+        </form>
+
+        <div class="text-center mt-3">
+            <p>Already have an account? <a asp-action="Login" asp-controller="User" class="btn btn-link">Go to Login</a></p>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

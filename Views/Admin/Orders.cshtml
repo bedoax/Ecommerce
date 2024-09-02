@@ -1,0 +1,221 @@
+﻿@using System.Text.Json
+
+<div class="container mt-5">
+    <div class="row">
+        <!-- Sidebar Menu -->
+        <div class="col-md-2">
+            <div class="list-group mb-4">
+                <a href="@Url.Action("Index", "Admin")" class="list-group-item list-group-item-action">
+                    <i class="fa-solid fa-user"></i> Users
+                </a>
+                <a href="@Url.Action("Statistics", "Admin")" class="list-group-item list-group-item-action">
+                    <i class="fa-solid fa-chart-line"></i> Statistics
+                </a>
+                <a href="@Url.Action("Orders", "Admin")" class="list-group-item list-group-item-action active">
+                    <i class="fa-solid fa-truck"></i> Orders
+                </a>
+                <a href="@Url.Action("Index", "Item")" class="list-group-item list-group-item-action">
+                    <i class="fa-solid fa-box"></i> Items
+                </a>
+                <a href="@Url.Action("Index", "Product")" class="list-group-item list-group-item-action">
+                    <i class="fa-solid fa-cube"></i> Products
+                </a>
+                <a href="@Url.Action("Index", "Department")" class="list-group-item list-group-item-action">
+                    <i class="fa-solid fa-tags"></i> Departments
+                </a>
+                <a href="@Url.Action("Logout", "User")" class="list-group-item list-group-item-action text-danger">
+                    <i class="fa-solid fa-right-from-bracket"></i> Logout
+                </a>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-10">
+            <h1 class="text-center mb-4">Order Management</h1>
+
+            <!-- Search Bar -->
+            <div class="input-group mb-4">
+                <input type="text" id="searchTerm" class="form-control" placeholder="Search by Username or ID" />
+                <button id="searchButton" class="btn btn-primary">
+                    <i class="fa-solid fa-search"></i> Search
+                </button>
+            </div>
+
+            <!-- Orders Table -->
+            <div class="table-responsive">
+                <table id="ordersTable" class="table table-bordered table-striped">
+                    <thead class="table-dark text-center">
+                        <tr>
+                            <th>Username</th>
+                            <th>Item Name</th>
+                            <th>Item Price</th>
+                            <th>Order Amount</th>
+                            <th>Order Date</th>
+                            <th>Status</th>
+                            <th>Update Status</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-center">
+                        @foreach (var order in ViewBag.Orders)
+                        {
+                            <tr id="order-row-@order.OrderId">
+                                <td>@order.Username</td>
+                                <td data-itemName="@order.ItemName">@order.ItemName</td>
+                                <td>@order.ItemPrice.ToString("C")</td>
+                                <td>@order.OrderAmount</td>
+                                <td>@order.OrderDate.ToString("yyyy-MM-dd")</td>
+                                <td>@order.OrderStatus</td>
+                                <td>
+                                    <form method="post" class="form-inline">
+                                        <input type="hidden" name="orderId" value="@order.OrderId" />
+                                        <select name="status" class="form-select form-select-sm" data-status="@order.OrderStatus">
+                                            @if (order.OrderStatus == "Pending")
+                                            {
+                                                <option value="Pending" selected>Pending</option>
+                                                <option value="Processing">Processing</option>
+                                                <option value="Shipped">Shipped</option>
+                                                <option value="Delivered">Delivered</option>
+                                            }
+
+                                            else if (order.OrderStatus == "Processing")
+                                            {
+
+                                                <option value="Pending">Pending</option>
+                                                <option value="Processing" selected>Processing</option>
+                                                <option value="Shipped">Shipped</option>
+                                                <option value="Delivered">Delivered</option>
+                                            }
+
+                                            else if (order.OrderStatus == "Shipped")
+                                            {
+                                                <option value="Pending">Pending</option>
+                                                <option value="Processing">Processing</option>
+                                                <option value="Shipped" selected>Shipped</option>
+                                                <option value="Delivered">Delivered</option>
+                                            }
+
+                                            else if (order.OrderStatus == "Delivered")
+                                            {
+                                                <option value="Pending">Pending</option>
+                                                <option value="Processing">Processing</option>
+                                                <option value="Shipped">Shipped</option>
+                                                <option value="Delivered" selected>Delivered</option>
+                                            }
+                                        </select>
+                                        <button type="button" class="btn btn-primary btn-sm ms-2 save-status">
+                                            <i class="fa-solid fa-save"></i> Save
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            var initialOrders = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.Orders));
+
+            // Function to attach event listeners to Save buttons
+            function addEventListenersToSaveButtons() {
+                $('.save-status').off('click').on('click', function () {
+                    var $form = $(this).closest('form');
+                    var orderId = $form.find('input[name="orderId"]').val();
+                    var status = $form.find('select[name="status"]').val();
+                    var itemName = $form.closest('tr').find('td[data-itemname]').data('itemname');
+                    updateStatus(orderId, status, itemName);
+                });
+            }
+
+            // Function to populate orders in the table
+            function populateOrders(orders) {
+                var $tableBody = $('#ordersTable tbody');
+                $tableBody.empty();
+
+                if (!orders || orders.length === 0) {
+                    $tableBody.html('<tr><td colspan="7">No orders found.</td></tr>');
+                } else {
+                    orders.forEach(function (order) {
+                        let row = `
+                                    <tr id="order-row-${order.orderId}">
+                                        <td>${order.username || 'Unknown User'}</td>
+                                        <td data-itemName="${order.itemName || 'Unknown Item'}">${order.itemName || 'Unknown Item'}</td>
+                                        <td>${(order.itemPrice !== null ? order.itemPrice.toLocaleString('en-US', { style: 'currency', currency: 'USD' }) : 'N/A')}</td>
+                                        <td>${order.orderAmount || 0}</td>
+                                        <td>${order.orderDate ? new Date(order.orderDate).toLocaleDateString() : 'N/A'}</td>
+                                        <td>${order.orderStatus || 'N/A'}</td>
+                                        <td>
+                                            <form method="post" class="form-inline">
+                                                <input type="hidden" name="orderId" value="${order.orderId}" />
+                                                <select name="status" class="form-select form-select-sm" data-status="${order.orderStatus}">
+                                                    ${['Pending', 'Processing', 'Shipped', 'Delivered'].map(status =>
+                            `<option value="${status}" ${order.orderStatus === status ? 'selected' : ''}>${status}</option>`
+                        ).join('')}
+                                                </select>
+                                                <button type="button" class="btn btn-primary btn-sm ms-2 save-status">
+                                                    <i class="fa-solid fa-save"></i> Save
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                `;
+                        $tableBody.append(row);
+                    });
+                    addEventListenersToSaveButtons(); // Attach event listeners after populating the table
+                }
+            }
+
+            // Function to search for orders
+            function searchOrders() {
+                var searchTerm = $('#searchTerm').val();
+                $.ajax({
+                    url: `@Url.Action("Search")`,
+                    type: 'GET',
+                    data: { searchTerm: searchTerm },
+                    dataType: 'json',
+                    success: function (data) {
+                        populateOrders(data);
+                    },
+                    error: function () {
+                        alert('An error occurred while searching for orders.');
+                    }
+                });
+            }
+
+            // Function to update the order status
+            function updateStatus(orderId, status, itemName) {
+                $.ajax({
+                    url: '@Url.Action("UpdateStatus")',
+                    type: 'POST',
+                    data: { orderId: orderId, status: status, itemName: itemName },
+                    success: function (result) {
+                        if (result.success) {
+                            var $row = $(`#order-row-${orderId}`);
+                            $row.find('select[name="status"]').val(status);
+                            $row.find('td:nth-child(6)').text(status);
+                        } else {
+                            alert(result.message);
+                        }
+                    },
+                    error: function () {
+                        alert('An error occurred while updating the status.');
+                    }
+                });
+            }
+
+            // Initial event listener attachment
+            addEventListenersToSaveButtons();
+
+            // Event listener for the search button
+            $('#searchButton').on('click', function () {
+                searchOrders();
+            });
+        });
+    </script>
+}
+

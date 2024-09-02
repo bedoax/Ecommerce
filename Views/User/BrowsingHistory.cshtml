@@ -1,0 +1,159 @@
+﻿@model IEnumerable<Ecommerce.Models.BrowsingHistory>
+
+@Html.Partial("Header")
+<div class="container mt-5">
+    <h3 class="mb-4">Browsing History</h3>
+    <div class="row">
+        @foreach (var item in ViewBag.Items)
+        {
+            if (item != null)
+            {
+                <div class="col-lg-4 col-md-6 col-sm-12 mb-4">
+                    <div class="card position-relative item-card h-100" data-item-id="@item.Id">
+                        <div class="card-img-top" style="height: 300px;">
+                            <img src="~/images/@($"{item.Id}_{item.Name}.jpg")" class="img-fluid w-100 h-100 object-fit-cover rounded-top">
+                        </div>
+                        <div class="card-body">
+                            <h4 class="card-title">@item.Name</h4>
+                            <p class="card-text">Price: @item.Price</p>
+                        </div>
+                        <div class="card-icon position-absolute d-flex flex-column h-50" style="right:5px;">
+                            <a href="#" class="mb-3 mt-3 fs-5 cart-button" data-item-id="@item.Id">
+                                <i class="fa-solid @(ViewBag.InCart.Contains(item.Id) ? "fa-check" : "fa-cart-plus")"></i>
+                            </a>
+                            <a href="#" class="fs-5 love-button" data-item-id="@item.Id">
+                                <i class="fa-regular fa-heart"></i>
+                            </a>
+                            <a href="#" class="fs-5 text-danger mt-3 delete-button" data-item-id="@item.Id">
+                                <i class="fa-solid fa-trash"></i>
+                            </a>
+                        </div>
+                        <div class="card-rate mt-3">
+                            <ul class="d-flex list-unstyled justify-content-center">
+                                @for (int i = 0; i < 5; i++)
+                                {
+                                    <li>
+                                        <i class="fa-solid fa-star @((i < ViewBag.AverageRatings[item.Id]) ? "text-warning" : "text-muted")"></i>
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                        <div class="card-footer text-center">
+                            <a asp-action="Details" asp-controller="Item" asp-route-id="@item.Id" class="btn btn-warning">View Item</a>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</div>
+
+@section Scripts
+{
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            let cartButtons = document.querySelectorAll(".cart-button");
+            let loveButtons = document.querySelectorAll(".love-button");
+            let deleteButtons = document.querySelectorAll(".delete-button");
+            let spanCartNumber = document.querySelector('.cart-span-number');
+            let number = parseInt(spanCartNumber.innerHTML) || 0;
+            var searchInput = document.getElementById('searchInput');
+
+            // Attach an event listener to the search input field for the 'Enter' key
+            searchInput.addEventListener('keypress', function (e) {
+                if (e.key === 'Enter') {
+                    var searchQuery = this.value.trim().toLowerCase();
+                    foo();
+                }
+            });
+
+            cartButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    let icon = button.querySelector('.fa-cart-plus, .fa-check');
+                    let itemId = button.dataset.itemId;
+
+                    // Send AJAX request to add/remove item from cart
+                    $.ajax({
+                        type: "POST",
+                        url: '/Item/AddToCartOrRemove',
+                        data: { id: itemId },
+                        success: function (response) {
+                            if (response.success) {
+                                if (response.isAdded) {
+                                    number++;
+                                    icon.classList.remove('fa-cart-plus');
+                                    icon.classList.add('fa-check');
+                                } else {
+                                    number--;
+                                    icon.classList.remove('fa-check');
+                                    icon.classList.add('fa-cart-plus');
+                                }
+                                spanCartNumber.innerHTML = number > 0 ? number : '';
+                            } else {
+                                alert("Failed to update cart. Please try again.");
+                            }
+                        },
+                        error: function () {
+                            alert("Error processing your request.");
+                        }
+                    });
+                });
+            });
+
+            loveButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    let loveIcon = button.querySelector('.fa-heart');
+                    let itemId = button.dataset.itemId;
+
+                    // Send AJAX request to toggle favorite
+                    $.ajax({
+                        type: "POST",
+                        url: '/Item/ToggleFavorite',
+                        data: { id: itemId },
+                        success: function (response) {
+                            if (response.success) {
+                                loveIcon.classList.toggle('fa-regular');
+                                loveIcon.classList.toggle('fa-solid');
+                            } else {
+                                alert("Failed to update favorite. Please try again.");
+                            }
+                        },
+                        error: function () {
+                            alert("Error processing your request.");
+                        }
+                    });
+                });
+            });
+
+            deleteButtons.forEach(button => {
+                button.addEventListener('click', function (event) {
+                    event.preventDefault();
+                    let itemId = this.dataset.itemId;
+
+                    // Send AJAX request to delete item from browsing history
+                    $.ajax({
+                        type: "POST",
+                        url: '/Item/DeleteItemBrowsingHistory',
+                        data: { id: itemId },
+                        success: function (response) {
+                            if (response.success) {
+                                document.querySelector(`.item-card[data-item-id="${itemId}"]`).remove();
+                            } else {
+                                alert("Failed to delete item from browsing history. Please try again.");
+                            }
+                        },
+                        error: function () {
+                            alert("Error processing your request.");
+                        }
+                    });
+                });
+            });
+
+            function foo() {
+                var searchQuery = searchInput.value.trim().toLowerCase();
+                var url = '@Url.Action("Index", "Items")';
+                window.location.href = url.replace("__query__", searchQuery);
+            }
+        });
+    </script>
+}

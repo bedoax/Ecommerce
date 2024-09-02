@@ -1,0 +1,97 @@
+﻿@model Ecommerce.Models.Item
+
+@{
+    ViewData["Title"] = "Details";
+}
+@Html.Partial("Header")
+<div class="container mt-5">
+    <div class="row">
+        <!-- Item Image -->
+        <div class="col-md-6 mb-4" style="height:400px;">
+            <img src="~/images/@($"{Model.Id}_{Model.Name}.jpg")" alt="Item Image" class="img-fluid h-100 object-fit-cover rounded shadow-sm">
+        </div>
+
+        <!-- Item Details -->
+        <div class="col-md-6">
+            <h2 class="mb-3">@Model.Name</h2>
+
+            <div class="rateItem mb-3">
+                <ul class="d-flex list-unstyled">
+                    @for (int i = 0; i < 5; i++)
+                    {
+                        <li>
+                            <i class="fa-solid fa-star @((i < ViewBag.RateItem) ? "text-warning" : "text-muted")"></i>
+                        </li>
+                    }
+                </ul>
+            </div>
+
+            <p class="h4 text-success mb-3">@Model.Price$</p>
+            <p class="mb-3">@Model.Description</p>
+
+            <div class="mb-3">
+                <select class="form-select" aria-label="Select quantity">
+                    <option selected>Quantity</option>
+                    @for (int i = 1; i <= 5; i++)
+                    {
+                        <option value="@i">@i</option>
+                    }
+                </select>
+            </div>
+            <form method="post" asp-action="Buy" asp-controller="Item">
+                <input type="hidden" name="id" value="@Model.Id" />
+                <button type="submit" class="btn btn-primary text-white w-100 mb-2">
+                    Buy
+                </button>
+            </form>
+            <button class="btn @(!ViewBag.IsAddedToCart ? "btn-secondary" : "btn-danger") text-white w-100 mb-2 add-cart-btn" data-item-id="@Model.Id">
+                @(ViewBag.IsAddedToCart ? "Remove From Cart" : "Add to Cart")
+            </button>
+        </div>
+    </div>
+
+    <div class="mt-5 text-center">
+        <a asp-action="Index" asp-controller="User" class="btn btn-primary">Back to List</a>
+    </div>
+</div>
+
+@section Scripts
+{
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $(".add-cart-btn").click(function () {
+                var button = $(this);
+                var itemId = button.data("item-id");
+                let spanCartNumber = document.querySelector('.cart-span-number');
+                let number = parseInt(spanCartNumber.innerHTML) || 0;
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("AddToCartOrRemove", "Item")',
+                    data: { id: itemId },
+                    success: function (response) {
+                        if (response.success) {
+                            if (response.isAdded) {
+                                button.text("Remove From Cart");
+                                button.removeClass("btn-secondary").addClass("btn-danger");
+                                number++;
+                            } else {
+                                button.text("Add to Cart");
+                                button.removeClass("btn-danger").addClass("btn-secondary");
+                               
+                                number--;
+                            }
+                            spanCartNumber.innerHTML = number > 0 ? number : '';
+                        } else {
+                            alert("Error processing your request.");
+                        }
+                    },
+                    error: function () {
+                        alert("An error occurred while trying to add/remove the item.");
+                    }
+                });
+
+                return false; // Prevent default action
+            });
+        });
+    </script>
+}

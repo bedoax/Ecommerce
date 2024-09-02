@@ -1,0 +1,42 @@
+﻿<div class="container bg-warning rounded">
+    <header class="d-sm-block d-md-flex justify-content-between align-items-center">
+        <span class="ms-3 text-white fs-2"><a href="@Url.Action("Index", "User")" class="text-white text-decoration-none">Ano</a></span>
+
+        <input type="text" class="border-0 rounded w-100 w-lg-50 h-25 my-2 my-lg-0 pt-2 pb-2" placeholder="Search About Item" id="searchInput" />
+
+        <div class="buttons d-flex justify-content-center justify-content-md-start">
+            <div class="dropdown" id="dropdowndiv">
+                <button class="btn btn-warning dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fa-solid fa-user text-white"></i>
+                </button>
+                <div class="dropdown-menu" aria-labelledby="userDropdown">
+                    <a class="dropdown-item" href="@Url.Action("Settings", "User")">Settings</a>
+                    <a class="dropdown-item" href="@Url.Action("OrderItems", "User")">Order Items</a>
+                    <a class="dropdown-item" href="@Url.Action("BrowsingHistory", "User")">Browsing History</a>
+                    <div class="dropdown-divider"></div>
+                    <form method="post" action="@Url.Action("Logout", "User")">
+                        <button class="dropdown-item" type="submit">Logout</button>
+                    </form>
+                </div>
+            </div>
+            <button class="p-2 border-0 rounded me-2 bg-warning cart position-relative" id="cartButton">
+                <i class="fa-solid fa-cart-shopping text-white"></i>
+                <span class="cart-span-number badge badge-primary badge-pill position-absolute" style="top:1px;right:-14px;" id="cart-count">@(ViewBag.CartItemsNumber > 0 ? ViewBag.CartItemsNumber.ToString() : "")</span>
+            </button>
+        </div>
+    </header>
+</div>
+
+<script>
+    const userDropDownBtn = document.getElementById('userDropdown');
+    const userDropDownMenu = document.getElementById('dropdown-menu');
+    const cartNumbers = document.querySelector('.cart-span-number');
+    userDropDownBtn.addEventListener('click', function () {
+        userDropDownMenu.classList.toggle('show');
+        const check = this.getAttribute('aria-expanded');
+        this.setAttribute('aria-expanded', check === 'false' ? 'true' : 'false');
+    });
+    document.getElementById('cartButton').addEventListener('click', function () {
+        window.location.href = '@Url.Action("CartItems", "User")';
+    });
+</script>

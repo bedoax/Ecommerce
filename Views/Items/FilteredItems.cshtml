@@ -1,0 +1,27 @@
+﻿@model IEnumerable<Ecommerce.Models.Item>
+
+@foreach (var item in Model)
+{
+    <div class="item d-flex mt-2 border border-1 border-secondary rounded">
+        <div class="item-img  rounded w-25">
+            <img src="~/images/@($"{item.Id}_{item.Name}.jpg")" alt="img" class="img-fluid  h-100 object-fit-cover">
+        </div>
+        <div class="content w-75 ms-2 text-lg-start text-center">
+            <h4 class="title">@item.Name</h4>
+            <div class="rateItem">
+                <ul class="d-flex list-unstyled justify-content-lg-start justify-content-center">
+                    @for (int i = 0; i < 5; i++)
+                    {
+                        <li>
+                            <i class="fa-solid fa-star @((i <ViewBag.RateItem[@item.Id]) ? "text-warning" : "text-muted")"></i>
+                        </li>
+                    }
+                </ul>
+            </div>
+            <p class="price">@item.Price$</p>
+            <button class="btn btn-secondary text-white p-2 w-25 mt-2 add-cart-btn" data-item-id="@item.Id">
+                Add To Cart
+            </button>
+        </div>
+    </div>
+}

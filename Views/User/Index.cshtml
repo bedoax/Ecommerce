@@ -1,0 +1,177 @@
+﻿@model List<Ecommerce.Models.Department>
+@Html.Partial("Header")
+
+<div class="container offer bg-warning rounded mt-5 d-lg-flex align-items-center">
+    <div class="text w-100">
+        <p class="text-white font-monospace fs-3">Grab up to 50% off selected headphones</p>
+        <p class="rounded p-2 bg-white text-center m-auto w-25">
+            <a href="@Url.Action("Index", "Items" ,new { searchContent = "headphones" })" class="pointer-event text-warning text-decoration-none">Buy Now</a>
+        </p>
+    </div>
+    <div class="imag w-100 h-100 img-fluid flex-xl-shrink-1 text-end d-none d-lg-block">
+        <!-- Show image only on large screens and above -->
+        <img src="~/images/Headphone.png" alt="headphone" class="img-fluid" />
+    </div>
+</div>
+
+<div class="container mt-5 mb-5">
+    <div class="row mb-5 mt-5">
+        <h3>Featured Items</h3>
+        <a class="text-black text-end mb-2" asp-action="Index" asp-controller="Items" style="font-size:20px;">View all Items</a>
+        @foreach (var item in ViewBag.featuredItems)
+        {
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="card position-relative">
+                    <div class="card-img-top" style="height: 300px;">
+                        <!-- Dynamically generate the image path -->
+                        <img src="~/images/@($"{item.Id}_{item.Name}.jpg")" alt="img" class="img-fluid w-100 h-100 object-fit-cover">
+                    </div>
+                    <div class="card-body">
+                        <h4 class="card-title">@item.Name</h4>
+                        <p class="card-text">@item.Price</p>
+                    </div>
+                    <div class="card-icon position-absolute d-flex flex-column h-50" style="right: 5px;">
+                        <a href="#" class="mb-3 mt-3 fs-5 cart-button" data-item-id="@item.Id">
+                            <i class="fa-solid @(ViewBag.InCart.Contains(item.Id) ? "fa-check" : "fa-cart-plus")"></i>
+                        </a>
+                        <a href="#" class="fs-5 love-button"><i class="fa-regular fa-heart"></i></a>
+                    </div>
+                    <div class="card-rate">
+                        <ul class="d-flex list-unstyled">
+                            @for (int i = 0; i < 5; i++)
+                            {
+                                <li><i class="fa-solid fa-star @((i < ViewBag.AverageRatings[item.Id]) ? "text-warning" : "text-muted")"></i></li>
+                            }
+                        </ul>
+                    </div>
+                    <div class="card-footer text-center">
+                        <a asp-action="Details" asp-controller="Item" asp-route-id="@item.Id" class="btn btn-warning">View item</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="row mb-5 mt-5">
+        <h3>Most Items Trending</h3>
+        <a class="text-black text-end mb-2" asp-action="Index" asp-controller="Items" style="font-size:20px;">View all Items</a>
+        @foreach (var item in ViewBag.MostItemsWantIt)
+        {
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="card position-relative">
+                    <div class="card-img-top" style="height: 300px;">
+                        <!-- Dynamically generate the image path -->
+                        <img src="~/images/@($"{item.Id}_{item.Name}.jpg")" alt="img" class="img-fluid w-100 h-100 object-fit-cover">
+                    </div>
+                    <div class="card-body">
+                        <h4 class="card-title">@item.Name</h4>
+                        <p class="card-text">@item.Price</p>
+                    </div>
+                    <div class="card-icon position-absolute d-flex flex-column h-50" style="right: 5px;">
+                        <a href="#" class="mb-3 mt-3 fs-5 cart-button" data-item-id="@item.Id">
+                            <i class="fa-solid @(ViewBag.InCart.Contains(item.Id) ? "fa-check" : "fa-cart-plus")"></i>
+                        </a>
+                        <a href="#" class="fs-5 love-button"><i class="fa-regular fa-heart"></i></a>
+                    </div>
+                    <div class="card-rate">
+                        <ul class="d-flex list-unstyled">
+                            @for (int i = 0; i < 5; i++)
+                            {
+                                <li><i class="fa-solid fa-star @((i < ViewBag.AverageRatings[item.Id]) ? "text-warning" : "text-muted")"></i></li>
+                            }
+                        </ul>
+                    </div>
+                    <div class="card-footer text-center">
+                        <a asp-action="Details" asp-controller="Item" asp-route-id="@item.Id" class="btn btn-warning">View item</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts
+{
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            let cartButtons = document.querySelectorAll(".cart-button");
+            let spanCartNumber = document.querySelector('.cart-span-number');
+            let loveButtons = document.querySelectorAll(".love-button");
+            let number = parseInt(spanCartNumber.innerHTML) || 0;
+            var searchInput = document.getElementById('searchInput');
+
+            // Attach an event listener to the search input field for the 'Enter' key
+            searchInput.addEventListener('keypress', function (e) {
+                if (e.key === 'Enter') {
+                    var searchQuery = this.value.trim().toLowerCase();
+                    console.log(`You Are Searching About: ${searchQuery}`);
+                    Search();
+                }
+            });
+
+            cartButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    let icon = button.querySelector('.fa-cart-plus, .fa-check');
+                    let itemId = button.dataset.itemId;
+
+                    // Send AJAX request to add/remove item from cart
+                    $.ajax({
+                        type: "POST",
+                        url: '/Item/AddToCartOrRemove', // Adjust this URL as needed
+                        data: { id: itemId },
+                        success: function (response) {
+                            if (response.success) {
+                                if (response.isAdded) {
+                                    number++;
+                                    icon.classList.remove('fa-cart-plus');
+                                    icon.classList.add('fa-check');
+                                } else {
+                                    number--;
+                                    icon.classList.remove('fa-check');
+                                    icon.classList.add('fa-cart-plus');
+                                }
+                                spanCartNumber.innerHTML = number > 0 ? number : '';
+                            } else {
+                                alert("Failed to update cart. Please try again.");
+                            }
+                        },
+                        error: function () {
+                            alert("Error processing your request.");
+                        }
+                    });
+                });
+            });
+
+            loveButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    let loveIcon = button.querySelector('.fa-heart');
+                    let itemId = button.dataset.itemId;
+
+                    // Send AJAX request to toggle favorite
+                    $.ajax({
+                        type: "POST",
+                        url: '/Item/ToggleFavorite', // Adjust this URL as needed
+                        data: { id: itemId },
+                        success: function (response) {
+                            if (response.success) {
+                                loveIcon.classList.toggle('fa-regular');
+                                loveIcon.classList.toggle('fa-solid');
+                            } else {
+                                alert("Failed to update favorite. Please try again.");
+                            }
+                        },
+                        error: function () {
+                            alert("Error processing your request.");
+                        }
+                    });
+                });
+            });
+
+            function Search() {
+                var searchQuery = searchInput.value.trim().toLowerCase();
+                var url = '@Url.Action("Index", "Items")'; // URL with query parameter
+                window.location.href = `${url}?query=${encodeURIComponent(searchQuery)}`; // Update URL with search query
+            }
+        });
+    </script>
+}

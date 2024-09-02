@@ -1,0 +1,69 @@
+﻿@model Ecommerce.Models.Item
+
+<div class="container my-4">
+    <h2 class="text-center mb-4">Create New Item</h2>
+    <hr />
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <form asp-action="Create" enctype="multipart/form-data">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                @* Display validation errors *@
+                @if (ViewBag.ValidationErrors != null)
+                {
+                    <div class="alert alert-danger">
+                        <ul>
+                            @foreach (var error in ViewBag.ValidationErrors)
+                            {
+                                <li>@error.ErrorMessage</li>
+                            }
+                        </ul>
+                    </div>
+                }
+
+                <div class="form-group mb-3">
+                    <label asp-for="Name" class="form-label"></label>
+                    <input asp-for="Name" class="form-control" placeholder="Enter item name" data-bs-toggle="tooltip" title="Item Name" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="Description" class="form-label"></label>
+                    <textarea asp-for="Description" class="form-control" rows="4" placeholder="Enter item description" data-bs-toggle="tooltip" title="Item Description"></textarea>
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="Price" class="form-label"></label>
+                    <input asp-for="Price" class="form-control" type="number" step="0.01" placeholder="Enter item price" data-bs-toggle="tooltip" title="Item Price" />
+                    <span asp-validation-for="Price" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-4">
+                    <label asp-for="ProductId" class="form-label"></label>
+                    <input asp-for="ProductId" class="form-control" placeholder="Enter related product ID" data-bs-toggle="tooltip" title="Product ID" />
+                    <span asp-validation-for="ProductId" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-4">
+                    <label for="ImageUpload" class="form-label">Upload Item Image</label>
+                    <input type="file" class="form-control" id="ImageUpload" name="ImageUpload" accept="image/*" />
+                </div>
+
+                <div class="form-group text-center">
+                    <input type="submit" value="Create Item" class="btn btn-success w-50" />
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="text-center mt-4">
+        <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('[data-bs-toggle="tooltip"]').tooltip();
+    });
+</script>

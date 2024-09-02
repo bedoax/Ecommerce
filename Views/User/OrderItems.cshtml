@@ -1,0 +1,27 @@
+﻿@model IEnumerable<Ecommerce.Models.Item>
+@Html.Partial("Header")
+
+<div class="container">
+    <h3 class="mb-4">My Orders</h3>
+    @foreach (var orderitem in ViewBag.OrdersOfUsers)
+    {
+        <div class="order-item row mb-4 p-3 border rounded">
+            <div class="col-12 col-md-4 d-flex align-items-center mb-3 mb-md-0">
+                <div class="order-img me-3" style="max-width: 150px;">
+                    <img src="~/images/@($"{orderitem.ItemId}_{orderitem.Name}.jpg")" alt="photo" class="img-fluid rounded" style="width: 100%; height: auto; object-fit: cover;" />
+                </div>
+                <div class="info flex-grow-1">
+                    <h4 class="font-weight-bold">@orderitem.Name</h4>
+                    <p class="mb-1 text-muted">$@orderitem.Price</p>
+                    <p class="text-muted">@orderitem.Date.ToString("MM/dd/yyyy")</p>
+                </div>
+            </div>
+            <div class="col-12 col-md-4 d-flex align-items-center mb-3 mb-md-0">
+                <span class="status text-warning">@orderitem.Status</span>
+            </div>
+            <div class="col-12 col-md-4 d-flex align-items-center">
+                <a href="@Url.Action("TrackOrder", new { orderId = orderitem.OrderId })" class="btn btn-warning w-100">Track Order</a>
+            </div>
+        </div>
+    }
+</div>

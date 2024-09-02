@@ -1,0 +1,261 @@
+﻿@model IEnumerable<Ecommerce.Models.Item>
+@Html.Partial("Header")
+
+<!-- Loading Spinner -->
+<div id="loadingSpinner" class="d-none text-center my-3">
+    <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+</div>
+
+<div class="row w-100 h-100">
+    <span hidden id="search-content">@ViewBag.SearchContent</span>
+    <div class="filter bg-warning col-lg-3">
+        <h3>Products</h3>
+        <div class="Products">
+            @foreach (var product in ViewBag.Products)
+            {
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="product" id="product-@product.Id" data-product-id="@product.Id">
+                    <label class="form-check-label" for="product-@product.Id">
+                        @product.Name
+                    </label>
+                </div>
+            }
+        </div>
+        <div class="price text-center mb-3">
+            <input type="number" class="form-control mb-2" placeholder="Min Price" id="minPrice" />
+            <input type="number" class="form-control" placeholder="Max Price" id="maxPrice" />
+        </div>
+        <div class="button-filter text-center">
+            <button class="btn btn-primary text-white p-2 w-75" id="btn-filter">Submit</button>
+        </div>
+    </div>
+    <div class="content col-lg-8 h-100">
+        @foreach (var item in Model)
+        {
+            <div class="item d-flex mt-2 border border-1 border-secondary rounded">
+                <div class="item-img  rounded w-50">
+                    <a href="@Url.Action("Details", "Item", new { id = item.Id })" class="text-decoration-none text-dark">
+                        <img src="~/images/@($"{item.Id}_{item.Name}.jpg")" alt="img" class="img-fluid  h-100 object-fit-fill">
+                    </a>
+                </div>
+                <div class="content w-75 ms-2 text-lg-start text-center">
+                    <a href="@Url.Action("Details", "Item", new { id = item.Id })" class="text-decoration-none text-dark">
+                        <h4 class="title">@item.Name</h4>
+                    </a>
+                    <div class="rateItem">
+                        <ul class="d-flex list-unstyled justify-content-lg-start justify-content-center">
+                            @for (int i = 0; i < 5; i++)
+                            {
+                                <li><i class="fa-solid fa-star @((i < ViewBag.RateItem[@item.Id]) ? "text-warning" : "text-muted")"></i></li>
+                            }
+                        </ul>
+                    </div>
+                    <p class="price">@item.Price$</p>
+                    <button class="btn @(ViewBag.InCart.Contains(@item.Id) ? "btn-danger" : "btn-secondary") text-white p-2 w-50 mb-2 add-cart-btn" data-item-id="@item.Id">
+                        @(ViewBag.InCart.Contains(@item.Id) ? "Remove from Cart" : "Add To Cart")
+                    </button>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Error Message Container -->
+<div id="errorMessage" class="alert alert-danger d-none mt-3"></div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const filterButton = document.getElementById('btn-filter');
+            const loadingSpinner = document.getElementById('loadingSpinner');
+            const errorMessage = document.getElementById('errorMessage');
+            const searchInput = document.getElementById('searchInput');
+            let searchContent = document.getElementById('search-content');
+            if (searchContent.textContent != "")
+            {
+                handleSearchFromUser();
+            }
+            let val = parseInt(cartNumbers.textContent);
+            function showLoadingSpinner(show) {
+                loadingSpinner.classList.toggle('d-none', !show);
+            }
+
+            function displayError(message) {
+                errorMessage.textContent = message;
+                errorMessage.classList.remove('d-none');
+            }
+
+            function clearError() {
+                errorMessage.classList.add('d-none');
+                errorMessage.textContent = '';
+            }
+
+            async function handleRequest(url) {
+                try {
+                    const response = await fetch(url);
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return await response.json();
+                } catch (error) {
+                    console.error('Fetch error:', error);
+                    return false;
+                }
+            }
+
+            function updateItems(data) {
+                if (!data || !Array.isArray(data.items) || typeof data.ratings !== 'object') {
+                    throw new Error("Unexpected response format.");
+                }
+
+                const itemsContainer = document.querySelector('.content');
+                itemsContainer.innerHTML = '';
+
+                if (data.items.length === 0) {
+                    itemsContainer.innerHTML = '<p>No items found.</p>';
+                    return;
+                }
+
+                data.items.forEach(item => {
+                    const rating = data.ratings[item.id] || 0;
+                    const isInCart = data.inCart.includes(item.id);
+                    const buttonText = isInCart ? "Remove from Cart" : "Add To Cart";
+                    const buttonClass = isInCart ? "btn-danger" : "btn-secondary";
+
+                    let itemHtml = `
+                    <div class="item d-flex mt-2 border border-1 border-secondary rounded">
+                        <div class="item-img bg-black rounded w-25">
+                            <a href="/Item/Details/${item.id}" class="text-decoration-none text-dark">
+                              <img src="/images/${item.id}_${item.name}.jpg" alt="${item.name}" class="img-fluid w-100">
+                            </a>
+                        </div>
+                        <div class="content w-75 ms-2 text-lg-start text-center">
+                            <a href="/Item/Details/${item.id}" class="text-decoration-none text-dark">
+                                <h4 class="title">${item.name}</h4>
+                            </a>
+                            <div class="rateItem">
+                                <ul class="d-flex list-unstyled justify-content-lg-start justify-content-center">`;
+
+                    for (let i = 0; i < 5; i++) {
+                        itemHtml += `<li><i class="fa-solid fa-star ${i < rating ? 'text-warning' : 'text-muted'}"></i></li>`;
+                    }
+
+                    itemHtml += `
+                                </ul>
+                            </div>
+                            <p class="price">${item.price}$</p>
+                            <button class="btn ${buttonClass} text-white p-2 w-25 mt-2 add-cart-btn" data-item-id="${item.id}">
+                                ${buttonText}
+                            </button>
+                        </div>
+                    </div>`;
+
+                    itemsContainer.insertAdjacentHTML('beforeend', itemHtml);
+                });
+
+                attachCartButtonListeners();
+            }
+
+            async function handleSearch() {
+                const searchQuery = searchInput.value.trim().toLowerCase();
+                const url = `@Url.Action("SearchItem", "Items")?item=${encodeURIComponent(searchQuery)}`;
+                const data = await handleRequest(url);
+                if (data) {
+                    updateItems(data);
+                }
+                
+            }
+
+            async function handleSearchFromUser() {
+                const searchQuery = searchContent.textContent.trim().toLowerCase();
+                const url = `@Url.Action("SearchItem", "Items")?item=${encodeURIComponent(searchQuery)}`;
+                const data = await handleRequest(url);
+                if (data) {
+                    updateItems(data);
+                }
+                searchInput.value = searchQuery;
+            }
+            async function handleFilter() {
+                clearError();
+                const selectedProduct = document.querySelector('input[name="product"]:checked');
+                const minPrice = document.getElementById('minPrice').value;
+                const maxPrice = document.getElementById('maxPrice').value;
+
+                if (!selectedProduct) {
+                    alert("Please select a product.");
+                    showLoadingSpinner(false);
+                    return;
+                }
+                if (parseInt(minPrice) > parseInt(maxPrice)) {
+                    alert("The max price cannot be less than min price. Please try again.");
+                    showLoadingSpinner(false);
+                    return;
+                }
+                if (minPrice < 0 || maxPrice < 0) {
+                    alert("Error: Prices cannot be negative.");
+                    showLoadingSpinner(false);
+                    return;
+                }
+
+                const productId = selectedProduct.getAttribute('data-product-id');
+                const url = `@Url.Action("Filter", "Items")?productId=${encodeURIComponent(productId)}&minPrice=${encodeURIComponent(minPrice)}&maxPrice=${encodeURIComponent(maxPrice)}`;
+                const data = await handleRequest(url);
+                if (data) {
+                    updateItems(data);
+                }
+            }
+
+            async function attachCartButtonListeners() {
+                document.querySelectorAll('.add-cart-btn').forEach(button => {
+                    button.addEventListener('click', async function () {
+                        const itemId = this.getAttribute('data-item-id');
+                        const url = `@Url.Action("AddCartOrRemove", "Items")?itemId=${encodeURIComponent(itemId)}`;
+                        try {
+                            const response = await handleRequest(url);
+
+                            if (typeof response === 'boolean') {
+                                const isAdded = response;
+
+                                if (isAdded) {
+                                    this.textContent = "Remove From Cart";
+                                    this.classList.remove("btn-secondary");
+                                    this.classList.add("btn-danger");
+                                    if (cartNumbers.textContent == "") {
+                                        val = 0;
+                                    }
+                                    val++;
+                                    cartNumbers.textContent = val;
+
+                                } else {
+                                    this.textContent = "Add To Cart";
+                                    this.classList.add("btn-secondary");
+                                    this.classList.remove("btn-danger");
+
+                                    val--;
+
+                                    cartNumbers.textContent = val == 0 ? "" : val;
+                                }
+                            } else {
+                                console.error('Unexpected response format:', response);
+                            }
+                        } catch (error) {
+                            console.error('Error handling cart button click:', error);
+                        }
+                    });
+                });
+            }
+
+            searchInput.addEventListener('keypress', function (e) {
+                if (e.key === 'Enter') {
+                    handleSearch();
+                }
+            });
+
+            filterButton.addEventListener('click', handleFilter);
+
+            attachCartButtonListeners();
+        });
+    </script>
+}
