@@ -43,7 +43,7 @@ Welcome to the Ecommerce Project! This web application allows users to browse, p
 - **Stripe.net**: For integrating Stripe payment processing.
 - **Microsoft.Json**: For JSON serialization and deserialization.
 - **Microsoft.AspNetCore.Authentication.Cookies**: For handling cookie-based authentication.
-- **microsoft.entityframeworkcore.design
+- **Microsoft.EntityFrameworkCore.Design
 
 ## Installation
 
