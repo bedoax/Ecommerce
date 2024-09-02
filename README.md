@@ -83,10 +83,6 @@ This project includes custom encryption for securely storing user passwords. The
 
 Feel free to fork the repository, create a branch, and submit a pull request. Please ensure that your contributions align with the project's coding standards and include appropriate tests.
 
-## License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
-
 ## Contact
 
 For any questions or support, please contact [abdelrahmanneehad@gmail.com](mailto:abdelrahmanneehad@gmail.com).
