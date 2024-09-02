@@ -1,5 +1,3 @@
-Certainly! Here’s the updated README file with the implementation details changed from `PasswordEncryptionService` to `PasswordEncryption`:
-
 ---
 
 # Ecommerce Project
