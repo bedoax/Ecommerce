@@ -1,5 +1,3 @@
----
-
 # Ecommerce Project
 
 Welcome to the Ecommerce Project! This web application allows users to browse, purchase, and manage their orders of various products. It includes features for user authentication, payment processing, and account management.
@@ -92,5 +90,3 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 ## Contact
 
 For any questions or support, please contact [your-email@example.com](mailto:abdelrahmanneehad@gmail.com).
-
----
