@@ -39,7 +39,7 @@ Welcome to the Ecommerce Project! This web application allows users to browse, p
 
 1. **Clone the Repository**
    ```bash
-   git clone https://github.com/yourusername/ecommerce-project.git
+   git clone https://github.com/bedoax/ecommerce-project.git
    cd ecommerce-project
    ```
 
