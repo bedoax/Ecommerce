@@ -100,4 +100,4 @@ For any questions or support, please contact [Abdelrahman Said](mailto:abdelrahm
 
 ## GitHub
 
-You can find the project repository at [https://github.com/bedoax/ecommerce-project](https://github.com/bedoax/ecommerce-project).
+You can find the project repository at [https://github.com/bedoax/ecommerce-project](https://github.com/bedoax/Ecommerce?tab=readme-ov-file)).
